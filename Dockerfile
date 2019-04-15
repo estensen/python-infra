@@ -1,17 +1,16 @@
-FROM python:3.6.7-slim
-
-# Don't write .pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
-# Get log msgs ASAP instead of waiting for buffering
-ENV PYTHONUNBUFFERED 1
-
-RUN pip install pipenv
+FROM python:3.7.3-alpine AS base
 
 WORKDIR /app
-COPY Pipfile Pipfile.lock ./
-RUN pipenv install --system
+RUN pip install pipenv
 
+COPY Pipfile /app/
+COPY Pipfile.lock /app/
+RUN pipenv install --system --deploy --ignore-pipfile
+
+
+FROM base AS production
 COPY . /app
 
 EXPOSE 5000
 CMD ["python", "app.py"]
+
